@@ -5,5 +5,9 @@ This is a R Shiny App generates an A/B/n sample size estimator with visualizatio
 
 ## How-to-Use 
 The App includes two main tabs: 
-* Proportion Test (CTR, etc.)
-* 
+1. Proportion Test (CTR, etc.): the tab for the proportion test sample size calculation 
+2. t-Test (FQ28, etc.): the tab for the t test sample size calculation 
+
+Image guidelines for this project: 
+![The proportion test example](https://github.com/yanjin-li/abtest_calculator/fig/proportion-test.png)
+![The t-test example](https://github.com/yanjin-li/abtest_calculator/fig/t-test.png)
