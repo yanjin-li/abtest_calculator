@@ -10,5 +10,5 @@ The App includes two main tabs:
 
 Image guidelines for this project: 
 
-1. ![The proportion test example](https://github.com/yanjin-li/abtest_calculator/blob/master/fig/proption%20test.png)
-2. ![The t-test example](https://github.com/yanjin-li/abtest_calculator/blob/master/fig/t-test.png)
+1. [The proportion test example](https://github.com/yanjin-li/abtest_calculator/blob/master/fig/proption%20test.png)
+2. [The t-test example](https://github.com/yanjin-li/abtest_calculator/blob/master/fig/t-test.png)
