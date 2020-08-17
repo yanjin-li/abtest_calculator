@@ -7,8 +7,6 @@ pacman::p_load(
   glue, lubridate
 )
 
-options(digits=3)
-
 
 
 # UI Designs -------------------------------------------------------------------
