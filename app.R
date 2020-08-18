@@ -1,4 +1,5 @@
 # Shiny Initializations --------------------------------------------------------
+setwd("/data") 
 
 # load packages 
 pacman::p_load(
@@ -94,7 +95,7 @@ body <- dashboardBody(
             choices = c(
               "Two-side (A non-directional hypothesis: B = A)" = "two.sided",
               "One-side (A directional hypothesis: B > or < A)" = "one.sided"
-              )
+            )
           ),
           #"Note: Results within your testing tool may vary if you select one-tailed 
           #  and your testing tool uses two-tailed and vice versa.",
@@ -163,11 +164,11 @@ body <- dashboardBody(
             style = "text-align: center;", 
             textOutput("propTestSampleSizeBox", inline=TRUE), 
             span(style="display: inline-block; font-size:40px;", "per variation")
-            ),
+          ),
           h2(
             style = "text-align: center;", 
             textOutput("propTestTotalVisitors", inline=TRUE)
-            ),
+          ),
           "This is the number of visitors required to detect a change in the 
             conversion rate from the baseline (%) to (1+lift) x basline (%).",
           title = "Minimum Sample Size (Proportion Test)", 
@@ -177,11 +178,17 @@ body <- dashboardBody(
           width = 12,
           height = 230
         )
+      ),
+      fluidRow(
+        downloadButton(
+          "downloadDataProp",
+          label = "Download the proportion test result"
+        )
       )
-  ),
-  
-  # Tab 2: t-test 
-  tabItem(
+    ),
+    
+    # Tab 2: t-test 
+    tabItem(
       tabName = "t_test",
       
       fluidRow(
@@ -272,9 +279,6 @@ body <- dashboardBody(
             value = 95,
             post = "%"
           ),
-          #"This is the statistical confidence. The higher you set the statistical 
-          #confidence, the less likely the statistical results will return a false 
-          #difference (aka, a false positive or a Type I error).", 
           title = "4. Select Confidence (1-\u03B1)", 
           solidHeader = FALSE,
           status = "warning",
@@ -297,43 +301,45 @@ body <- dashboardBody(
             value = 80,
             post = "%"
           ),
-          #"The higher you set the statistical power, the greater your likelihood 
-          #of detecting a real difference if one exists and the less likely you 
-          #will return a false “no difference” (aka, a false negative or a Type 
-          #II error).", 
           title = "4. Select Confidence (1-\u03B2)", 
           solidHeader = FALSE,
           status = "warning",
           width = 4,
           height = 210
         )
-    ),
-    
-    # t-test sample size
-    fluidRow(
-      box(
-        "The number of visit(or)s should be at least:",
-        h1(
-          style = "text-align: center;",
-          textOutput("tTestSampleSizeBox", inline=TRUE),
-          span(style="display: inline-block; font-size:40px;", "per variation")
-        ),
-        h2(
-          style = "text-align: center;",
-          textOutput("tTestTotalVisitors", inline=TRUE)
-        ),
-        "This is the number of visitors required to detect a change in the 
+      ),
+      
+      # t-test sample size
+      fluidRow(
+        box(
+          "The number of visit(or)s should be at least:",
+          h1(
+            style = "text-align: center;",
+            textOutput("tTestSampleSizeBox", inline=TRUE),
+            span(style="display: inline-block; font-size:40px;", "per variation")
+          ),
+          h2(
+            style = "text-align: center;",
+            textOutput("tTestTotalVisitors", inline=TRUE)
+          ),
+          "This is the number of visitors required to detect a change in the 
             conversion rate from the baseline (%) to (1+lift) x basline (%).",
-        title = "Minimum Sample Size (t-Test)", 
-        solidHeader = FALSE,
-        background = "yellow", 
-        #status = "success",
-        width = 12,
-        height = 230
+          title = "Minimum Sample Size (t-Test)", 
+          solidHeader = FALSE,
+          background = "yellow", 
+          #status = "success",
+          width = 12,
+          height = 230
+        )
+      ),
+      fluidRow(
+        downloadButton(
+          "downloadDataT",
+          label = "Download the t test result"
+        )
       )
-    )
-  ) 
-)
+    ) 
+  )
 ) 
 
 
@@ -363,7 +369,7 @@ server <- function(input, output) {
                                   alternative = input$prop_test_tail_option)
         
         # Extract the sample size from the returned list and return it
-        return(calc_n$n)
+        return(round(calc_n$n))
       }#,
       # error = function(e){
       #   return("N/A")
@@ -384,7 +390,7 @@ server <- function(input, output) {
         )
         
         # Extract the sample size from the returned list and return it
-        return(calc_n$n)
+        return(round(calc_n$n))
       }#,
       # error = function(e){
       #   return("N/A")
@@ -392,32 +398,90 @@ server <- function(input, output) {
     )
   })
   
+  comma_format <- function(x){
+    format(x, big.mark=",", scientific = FALSE)
+  }
+
   # proportion test
   output$propTestSampleSizeBox <- renderText({
-    result <- round(calc_prop_results())
-    format(result, big.mark=",", scientific = FALSE)
-    
+    comma_format(calc_prop_results())
   })
   
   output$propTestTotalVisitors <- renderText({
-    result <- round(calc_prop_results()*input$prop_test_variations)
-     paste0("(",format(result, big.mark=",", scientific = FALSE),
-                         " total visitors)")
+    glue(
+      "({size} total visitors)",
+      size = comma_format(
+        calc_prop_results()*input$prop_test_variations
+      )
+    )
   })
   
   # t-test
   output$tTestSampleSizeBox <- renderText({
-    result <- round(calc_t_results())
-    format(result, big.mark=",", scientific = FALSE)
-    
+    comma_format(calc_t_results())
   })
   
   output$tTestTotalVisitors <- renderText({
-    result <- round(calc_t_results()*input$t_test_variations)
-    pctg <- round(result/input$t_test_user_count, digits = 4)*100
-    paste0("(",format(result, big.mark=",", scientific = FALSE),
-           " total visitors, which affects ", pctg, "% of the total target).")
+    glue(
+      "({size} total visitors, which affects {pctg} % of the total targets.",
+      size = comma_format(
+        calc_t_results()*input$t_test_variations
+      ),
+      pctg = round(
+        calc_t_results()*
+          input$t_test_variations/input$t_test_user_count, 
+        digits = 4
+      )*100
+    )
   })
+  
+  # download function: prop.test
+  output$downloadDataProp <- downloadHandler(
+    filename = function() {
+      paste("proportion-test-data-", Sys.Date(), ".csv", sep="")
+    },
+    content = function(file) {
+      data = data.frame(
+        date = Sys.Date(), 
+        test_type = "proportion test",
+        baseline_cvr = input$prop_test_baseline,
+        expected_lift_percentage = input$prop_test_min_effect,
+        n_variations = input$prop_test_variations,
+        test_tail_type = input$prop_test_tail_option,
+        confidence_level = input$prop_test_alpha,
+        power = input$prop_test_beta,
+        min_sample_size = calc_prop_results(),
+        total_variations_size = calc_prop_results()*input$prop_test_variations)
+      
+      write.csv(data, file)
+    }
+  )
+  
+  # download function: prop.test
+  output$downloadDataT <- downloadHandler(
+    filename = function() {
+      paste("t-test-data-", Sys.Date(), ".csv", sep="")
+    },
+    content = function(file) {
+      data = data.frame(
+        date = Sys.Date(), 
+        test_type = "t-test",
+        n_users = input$t_test_user_count,
+        metric_mean = input$t_test_mean,
+        metric_sd = input$t_test_sd,
+        expected_lift_percentage = input$t_test_min_effect,
+        n_variations = input$t_test_variations,
+        test_tail_type = input$t_test_tail_option,
+        confidence_level = input$t_test_alpha,
+        power = input$t_test_beta,
+        min_sample_size = calc_t_results(),
+        total_variations_size = calc_t_results()*input$t_test_variations,
+        affected_targets_percentage = round(calc_t_results()*input$t_test_variations/input$t_test_user_count, digits = 4)
+      )
+      
+      write.csv(data, file)
+    }
+  )
   
 }
 
