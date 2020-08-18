@@ -401,15 +401,7 @@ server <- function(input, output) {
   comma_format <- function(x){
     format(x, big.mark=",", scientific = FALSE)
   }
-  
-  filename <- function(type){
-    glue("{type}-data-{date}.csv",
-         type = type,
-         date = Sys.Date())
-  }
-  
-  
-  
+
   # proportion test
   output$propTestSampleSizeBox <- renderText({
     comma_format(calc_prop_results())
@@ -492,8 +484,6 @@ server <- function(input, output) {
   )
   
 }
-
-data.frame(a = "quote", b = pi)
 
 
 
