@@ -1,5 +1,8 @@
 # abtest_calculator
 
+## Shiny Dashboard
+https://shiny.ds.smartnews.net/ab_test_calculator_2.0/ 
+
 ## Introduction 
 This is a R Shiny App generates an A/B/n sample size estimator with visualizations for illustrating the impact of adjusting various settings. The test sample size calculator can be applied on both proportion test and t-test. 
 
@@ -14,3 +17,4 @@ Image guidelines for this project:
 ![The proportion test example](https://github.com/yanjin-li/abtest_calculator/blob/master/fig/proption%20test.png)
 2. The t-test example:<br/>
 ![The t-test example](https://github.com/yanjin-li/abtest_calculator/blob/master/fig/t-test.png)
+
