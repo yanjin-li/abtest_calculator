@@ -1,11 +1,13 @@
 # Shiny Initializations --------------------------------------------------------
 setwd("/data") 
 
+install.packages("pacman")
+
 # load packages 
 pacman::p_load(
   shinydashboard,
-  shiny, dplyr, here, 
-  glue, lubridate
+  shiny, dplyr, 
+  glue
 )
 
 
